@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pong Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #000;
+    }
+    canvas {
+      border: 2px solid #fff;
+      background-color: #111;
+    }
+    .score {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 24px;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="score" id="score">Jugador: 0 | Computadora: 0</div>
+  <canvas id="pong" width="800" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('pong');
+    const context = canvas.getContext('2d');
+    const scoreElement = document.getElementById('score');
+
+    // Scores
+    let playerScore = 0;
+    let computerScore = 0;
+
+    // Paddle settings
+    const paddleWidth = 10, paddleHeight = 100;
+    const player = {
+      x: 0,
+      y: canvas.height / 2 - paddleHeight / 2,
+      width: paddleWidth,
+      height: paddleHeight,
+      color: '#fff',
+      dy: 0,
+      speed: 5
+    };
+
+    const computer = {
+      x: canvas.width - paddleWidth,
+      y: canvas.height / 2 - paddleHeight / 2,
+      width: paddleWidth,
+      height: paddleHeight,
+      color: '#fff',
+      speed: 4
+    };
+
+    // Ball settings
+    const ball = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      radius: 10,
+      speed: 4,
+      dx: 4,
+      dy: 4,
+      color: '#ff0'
+    };
+
+    // Draw rectangle (paddles)
+    function drawRect(x, y, width, height, color) {
+      context.fillStyle = color;
+      context.fillRect(x, y, width, height);
+    }
+
+    // Draw ball
+    function drawBall(x, y, radius, color) {
+      context.fillStyle = color;
+      context.beginPath();
+      context.arc(x, y, radius, 0, Math.PI * 2, false);
+      context.closePath();
+      context.fill();
+    }
+
+    // Move player paddle
+    function movePlayerPaddle() {
+      player.y += player.dy;
+
+      if (player.y < 0) player.y = 0;
+      if (player.y > canvas.height - player.height) player.y = canvas.height - player.height;
+    }
+
+    // Move computer paddle with boundary checks
+    function moveComputerPaddle() {
+      if (computer.y + computer.height / 2 < ball.y - 10) {
+        computer.y += computer.speed;
+      } else if (computer.y + computer.height / 2 > ball.y + 10) {
+        computer.y -= computer.speed;
+      }
+
+      if (computer.y < 0) computer.y = 0;
+      if (computer.y > canvas.height - computer.height) computer.y = canvas.height - computer.height;
+    }
+
+    // Reset the ball
+    function resetBall() {
+      ball.x = canvas.width / 2;
+      ball.y = canvas.height / 2;
+      ball.dx = -ball.dx;
+      ball.speed = 4;
+    }
+
+    // Update the score display
+    function updateScore() {
+      scoreElement.innerText = `Jugador: ${playerScore} | Computadora: ${computerScore}`;
+    }
+
+    // Collision detection
+    function collision(paddle, ball) {
+      return (
+        ball.x - ball.radius < paddle.x + paddle.width &&
+        ball.x + ball.radius > paddle.x &&
+        ball.y - ball.radius < paddle.y + paddle.height &&
+        ball.y + ball.radius > paddle.y
+      );
+    }
+
+    // Handle ball collision with the player's paddle (changes angle)
+    function handlePlayerCollision(paddle) {
+      const collidePoint = ball.y - (paddle.y + paddle.height / 2);
+      const normalizedCollidePoint = collidePoint / (paddle.height / 2);
+      const angle = normalizedCollidePoint * (Math.PI / 4); // Max bounce angle
+
+      ball.dx = ball.speed * Math.cos(angle);
+      ball.dy = ball.speed * Math.sin(angle);
+
+      // Increase ball speed slightly after each hit
+      ball.speed += 0.5;
+    }
+
+    // Handle ball collision with the computer's paddle (linear bounce)
+    function handleComputerCollision() {
+      ball.dx = -ball.dx; // Invert direction
+    }
+
+    // Update the game state
+    function update() {
+      movePlayerPaddle();
+      moveComputerPaddle();
+
+      // Move ball
+      ball.x += ball.dx;
+      ball.y += ball.dy;
+
+      // Wall collision (top and bottom)
+      if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+        ball.dy = -ball.dy;
+      }
+
+      // Ball collision with paddles
+      if (collision(player, ball)) {
+        handlePlayerCollision(player); // Player paddle changes the angle
+      } else if (collision(computer, ball)) {
+        handleComputerCollision(); // Computer paddle keeps a linear bounce
+      }
+
+      // Ball out of bounds (left or right)
+      if (ball.x - ball.radius < 0) {
+        computerScore++;
+        updateScore();
+        resetBall();
+      } else if (ball.x + ball.radius > canvas.width) {
+        playerScore++;
+        updateScore();
+        resetBall();
+      }
+    }
+
+    // Render the game
+    function render() {
+      // Clear the canvas
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw paddles
+      drawRect(player.x, player.y, player.width, player.height, player.color);
+      drawRect(computer.x, computer.y, computer.width, computer.height, computer.color);
+
+      // Draw ball
+      drawBall(ball.x, ball.y, ball.radius, ball.color);
+    }
+
+    // Keydown event to control player paddle
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowUp') {
+        player.dy = -player.speed;
+      } else if (event.key === 'ArrowDown') {
+        player.dy = player.speed;
+      }
+    });
+
+    // Keyup event to stop player paddle
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        player.dy = 0;
+      }
+    });
+
+    // Game loop
+    function gameLoop() {
+      update();
+      render();
+    }
+
+    // Call the game loop every 16ms (60fps)
+    setInterval(gameLoop, 16);
+  </script>
+</body>
+</html>
