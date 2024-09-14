@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Banderas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .flag-container {
+            margin: 20px;
+        }
+        img {
+            width: 200px;
+            height: 150px;
+        }
+        button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            width: 150px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #score {
+            font-size: 20px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>¿De qué país es esta bandera?</h1>
+    <div class="flag-container">
+        <img id="flag" src="" alt="Bandera del país">
+    </div>
+    <div id="options">
+        <!-- Botones de opciones se generan dinámicamente -->
+    </div>
+    <div id="score">Aciertos: 0</div>
+
+    <script>
+        const countries = [
+    { name: "Argentina", flag: "https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_Argentina.svg" },
+    { name: "Brasil", flag: "https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" },
+    { name: "España", flag: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" },
+    { name: "México", flag: "https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg" },
+    { name: "Alemania", flag: "https://upload.wikimedia.org/wikipedia/en/b/ba/Flag_of_Germany.svg" },
+    { name: "Estados Unidos", flag: "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" },
+    { name: "Canadá", flag: "https://upload.wikimedia.org/wikipedia/commons/c/cf/Flag_of_Canada.svg" },
+    { name: "Francia", flag: "https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg" },
+    { name: "Italia", flag: "https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg" },
+    { name: "Reino Unido", flag: "https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg" },
+    { name: "Japón", flag: "https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg" },
+    { name: "Australia", flag: "https://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Australia.svg" },
+    { name: "India", flag: "https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" },
+    { name: "China", flag: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Flag_of_the_People%27s_Republic_of_China.svg" },
+    { name: "Rusia", flag: "https://upload.wikimedia.org/wikipedia/en/f/f3/Flag_of_Russia.svg" },
+    { name: "Sudáfrica", flag: "https://upload.wikimedia.org/wikipedia/commons/a/af/Flag_of_South_Africa.svg" },
+    { name: "Egipto", flag: "https://upload.wikimedia.org/wikipedia/commons/f/fe/Flag_of_Egypt.svg" },
+    { name: "Suecia", flag: "https://upload.wikimedia.org/wikipedia/en/4/4c/Flag_of_Sweden.svg" },
+    { name: "Noruega", flag: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Norway.svg" },
+    { name: "Finlandia", flag: "https://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Finland.svg" },
+    { name: "Dinamarca", flag: "https://upload.wikimedia.org/wikipedia/commons/9/9c/Flag_of_Denmark.svg" },
+    { name: "Países Bajos", flag: "https://upload.wikimedia.org/wikipedia/commons/2/20/Flag_of_the_Netherlands.svg" },
+    { name: "Bélgica", flag: "https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Belgium.svg" },
+    { name: "Suiza", flag: "https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Switzerland.svg" },
+    { name: "Grecia", flag: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Greece.svg" },
+    { name: "Portugal", flag: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg" },
+    { name: "Turquía", flag: "https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg" },
+    { name: "Arabia Saudita", flag: "https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_Saudi_Arabia.svg" },
+    { name: "Irán", flag: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Flag_of_Iran.svg" },
+    { name: "Israel", flag: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Israel.svg" },
+    { name: "Pakistán", flag: "https://upload.wikimedia.org/wikipedia/commons/3/32/Flag_of_Pakistan.svg" },
+    { name: "Corea del Sur", flag: "https://upload.wikimedia.org/wikipedia/commons/0/09/Flag_of_South_Korea.svg" },
+    { name: "Nueva Zelanda", flag: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Flag_of_New_Zealand.svg" },
+    { name: "Singapur", flag: "https://upload.wikimedia.org/wikipedia/commons/4/48/Flag_of_Singapore.svg" },
+    { name: "Tailandia", flag: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Flag_of_Thailand.svg" },
+    { name: "Vietnam", flag: "https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg" },
+    { name: "Indonesia", flag: "https://upload.wikimedia.org/wikipedia/commons/9/9f/Flag_of_Indonesia.svg" },
+    { name: "Malasia", flag: "https://upload.wikimedia.org/wikipedia/commons/6/66/Flag_of_Malaysia.svg" },
+    { name: "Filipinas", flag: "https://upload.wikimedia.org/wikipedia/commons/9/99/Flag_of_the_Philippines.svg" }
+];
+
+
+        let correctCountry;
+        let score = 0;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function loadNewFlag() {
+            const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+            correctCountry = randomCountry.name;
+            document.getElementById("flag").src = randomCountry.flag;
+
+            const options = shuffle([...countries].filter(country => country.name !== correctCountry));
+            const wrongOptions = options.slice(0, 2);
+            const allOptions = shuffle([correctCountry, ...wrongOptions.map(country => country.name)]);
+
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";  // Limpiar las opciones anteriores
+            allOptions.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.onclick = () => checkAnswer(option);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedCountry) {
+            if (selectedCountry === correctCountry) {
+                score++;
+                alert("¡Correcto!");
+            } else {
+                alert(`Incorrecto. La respuesta correcta era: ${correctCountry}`);
+            }
+            document.getElementById("score").textContent = `Aciertos: ${score}`;
+            loadNewFlag();  // Cargar una nueva bandera después de cada intento
+        }
+
+        window.onload = loadNewFlag;
+    </script>
+
+</body>
+</html>
