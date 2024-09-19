@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,42 +8,35 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            transition: background-color 0.5s;
         }
-        .flag-container {
-            margin: 20px;
-        }
-        img {
-            width: 200px;
-            height: 150px;
-        }
-        button {
-            display: block;
-            margin: 10px auto;
-            padding: 10px;
-            width: 150px;
-            font-size: 16px;
-            cursor: pointer;
+        #flag {
+            width: 300px;
+            height: 200px;
         }
         #score {
-            font-size: 20px;
-            margin: 20px;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        .option {
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid black;
+            display: inline-block;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <h1>¿De qué país es esta bandera?</h1>
-    <div class="flag-container">
-        <img id="flag" src="" alt="Bandera del país">
-    </div>
-    <div id="options">
-        <!-- Botones de opciones se generan dinámicamente -->
-    </div>
-    <div id="score">Aciertos: 0</div>
+    <h1>¡Adivina la bandera!</h1>
+    <img id="flag" src="" alt="Bandera">
+    <div id="options"></div>
+    <div id="score">Puntaje: 0</div>
 
     <script>
         const countries = [
-    { name: "Argentina", flag: "https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_Argentina.svg" },
+            { name: "Argentina", flag: "https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_Argentina.svg" },
     { name: "Brasil", flag: "https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" },
     { name: "España", flag: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" },
     { name: "México", flag: "https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg" },
@@ -128,52 +121,140 @@
     { name: "Seychelles", flag: "https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Seychelles.svg" },
     { name: "Madagascar", flag: "https://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Madagascar.svg" },
     { name: "Malí", flag: "https://upload.wikimedia.org/wikipedia/commons/9/92/Flag_of_Mali.svg" },
-    { name: "Níger", flag: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Flag_of_Niger.svg" }        
-];
+    { name: "Níger", flag: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Flag_of_Niger.svg" },  
+    { name: "Australia", flag: "https://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Australia.svg" },
+    { name: "Nueva Zelanda", flag: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Flag_of_New_Zealand.svg" },
+    { name: "India", flag: "https://upload.wikimedia.org/wikipedia/commons/4/41/Flag_of_India.svg" },
+    { name: "Japón", flag: "https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg" },
+    { name: "Corea del Sur", flag: "https://upload.wikimedia.org/wikipedia/commons/0/09/Flag_of_South_Korea.svg" },
+    { name: "Tailandia", flag: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Flag_of_Thailand.svg" },
+    { name: "Filipinas", flag: "https://upload.wikimedia.org/wikipedia/commons/9/99/Flag_of_the_Philippines.svg" },
+    { name: "Vietnam", flag: "https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg" },
+    { name: "Indonesia", flag: "https://upload.wikimedia.org/wikipedia/commons/9/9f/Flag_of_Indonesia.svg" },
+    { name: "Malasia", flag: "https://upload.wikimedia.org/wikipedia/commons/6/66/Flag_of_Malaysia.svg" },
+    { name: "Singapur", flag: "https://upload.wikimedia.org/wikipedia/commons/4/48/Flag_of_Singapore.svg" },
+    { name: "Pakistán", flag: "https://upload.wikimedia.org/wikipedia/commons/3/32/Flag_of_Pakistan.svg" },
+    { name: "Bangladés", flag: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Flag_of_Bangladesh.svg" },
+    { name: "Nepal", flag: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Flag_of_Nepal.svg" },
+    { name: "Sri Lanka", flag: "https://upload.wikimedia.org/wikipedia/commons/1/11/Flag_of_Sri_Lanka.svg" },
+    { name: "Camboya", flag: "https://upload.wikimedia.org/wikipedia/commons/8/83/Flag_of_Cambodia.svg" },
+    { name: "Myanmar", flag: "https://upload.wikimedia.org/wikipedia/commons/8/8c/Flag_of_Myanmar.svg" },
+    { name: "Mongolia", flag: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Flag_of_Mongolia.svg" },
+    { name: "Irán", flag: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Flag_of_Iran.svg" },
+    { name: "Arabia Saudita", flag: "https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_Saudi_Arabia.svg" },
+    { name: "Irak", flag: "https://upload.wikimedia.org/wikipedia/commons/f/f6/Flag_of_Iraq.svg" },
+    { name: "Israel", flag: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Israel.svg" },
+    { name: "Siria", flag: "https://upload.wikimedia.org/wikipedia/commons/5/53/Flag_of_Syria.svg" },
+    { name: "Líbano", flag: "https://upload.wikimedia.org/wikipedia/commons/5/59/Flag_of_Lebanon.svg" },
+    { name: "Jordania", flag: "https://upload.wikimedia.org/wikipedia/commons/c/c0/Flag_of_Jordan.svg" },
+    { name: "Kuwait", flag: "https://upload.wikimedia.org/wikipedia/commons/a/aa/Flag_of_Kuwait.svg" },
+    { name: "Emiratos Árabes Unidos", flag: "https://upload.wikimedia.org/wikipedia/commons/c/cb/Flag_of_the_United_Arab_Emirates.svg" },
+    { name: "Omán", flag: "https://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_Oman.svg" },
+    { name: "Yemen", flag: "https://upload.wikimedia.org/wikipedia/commons/8/89/Flag_of_Yemen.svg" },
+    { name: "Kazajistán", flag: "https://upload.wikimedia.org/wikipedia/commons/d/d3/Flag_of_Kazakhstan.svg" },
+    { name: "Uzbekistán", flag: "https://upload.wikimedia.org/wikipedia/commons/8/84/Flag_of_Uzbekistan.svg" },
+    { name: "Turkmenistán", flag: "https://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Turkmenistan.svg" },
+    { name: "Azerbaiyán", flag: "https://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_Azerbaijan.svg" },
+    { name: "Armenia", flag: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Flag_of_Armenia.svg" },
+    { name: "Georgia", flag: "https://upload.wikimedia.org/wikipedia/commons/0/0f/Flag_of_Georgia.svg" } , 
+ { name: "Afganistán", flag: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Afghanistan.svg" },
+    { name: "Tayikistán", flag: "https://upload.wikimedia.org/wikipedia/commons/d/d0/Flag_of_Tajikistan.svg" },
+    { name: "Kirguistán", flag: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Flag_of_Kyrgyzstan.svg" },
+    { name: "Maldivas", flag: "https://upload.wikimedia.org/wikipedia/commons/0/0f/Flag_of_Maldives.svg" },
+    { name: "Bhután", flag: "https://upload.wikimedia.org/wikipedia/commons/9/91/Flag_of_Bhutan.svg" },
+    { name: "Laos", flag: "https://upload.wikimedia.org/wikipedia/commons/5/56/Flag_of_Laos.svg" },
+    { name: "Brunéi", flag: "https://upload.wikimedia.org/wikipedia/commons/9/9c/Flag_of_Brunei.svg" },
+    { name: "Timor Oriental", flag: "https://upload.wikimedia.org/wikipedia/commons/2/26/Flag_of_East_Timor.svg" },
+    { name: "Bután", flag: "https://upload.wikimedia.org/wikipedia/commons/9/91/Flag_of_Bhutan.svg" },
+    { name: "Catar", flag: "https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Qatar.svg" },
+    { name: "Baréin", flag: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Flag_of_Bahrain.svg" },
+    { name: "Turquía", flag: "https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg" },
+    { name: "Chipre", flag: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Cyprus.svg" },
+    { name: "Madagascar", flag: "https://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Madagascar.svg" },
+    { name: "Mauricio", flag: "https://upload.wikimedia.org/wikipedia/commons/7/77/Flag_of_Mauritius.svg" },
+    { name: "Comoras", flag: "https://upload.wikimedia.org/wikipedia/commons/9/94/Flag_of_the_Comoros.svg" },
+    { name: "Seychelles", flag: "https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Seychelles.svg" },
+    { name: "Malí", flag: "https://upload.wikimedia.org/wikipedia/commons/9/92/Flag_of_Mali.svg" },
+    { name: "Níger", flag: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Flag_of_Niger.svg" },
+    { name: "Chad", flag: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Flag_of_Chad.svg" },
+    { name: "Burkina Faso", flag: "https://upload.wikimedia.org/wikipedia/commons/3/31/Flag_of_Burkina_Faso.svg" },
+    { name: "Benín", flag: "https://upload.wikimedia.org/wikipedia/commons/0/0a/Flag_of_Benin.svg" },
+    { name: "Togo", flag: "https://upload.wikimedia.org/wikipedia/commons/6/68/Flag_of_Togo.svg" },
+    { name: "Guinea", flag: "https://upload.wikimedia.org/wikipedia/commons/e/ed/Flag_of_Guinea.svg" },
+    { name: "Guinea-Bisáu", flag: "https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_Guinea-Bissau.svg" },
+    { name: "Sierra Leona", flag: "https://upload.wikimedia.org/wikipedia/commons/1/17/Flag_of_Sierra_Leone.svg" },
+    { name: "Liberia", flag: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Flag_of_Liberia.svg" },
+    { name: "Cabo Verde", flag: "https://upload.wikimedia.org/wikipedia/commons/3/38/Flag_of_Cape_Verde.svg" },
+    { name: "Gambia", flag: "https://upload.wikimedia.org/wikipedia/commons/7/77/Flag_of_The_Gambia.svg" },
+    { name: "Sudán del Sur", flag: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Flag_of_South_Sudan.svg" },
+    { name: "Sudán", flag: "https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_Sudan.svg" },
+    { name: "Eritrea", flag: "https://upload.wikimedia.org/wikipedia/commons/2/29/Flag_of_Eritrea.svg" },
+    { name: "Djibouti", flag: "https://upload.wikimedia.org/wikipedia/commons/3/34/Flag_of_Djibouti.svg" },
+    { name: "Somalia", flag: "https://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Somalia.svg" },
+    { name: "Etiopía", flag: "https://upload.wikimedia.org/wikipedia/commons/7/71/Flag_of_Ethiopia.svg" },
+    { name: "Ruanda", flag: "https://upload.wikimedia.org/wikipedia/commons/1/17/Flag_of_Rwanda.svg" },
+    { name: "Burundi", flag: "https://upload.wikimedia.org/wikipedia/commons/5/50/Flag_of_Burundi.svg" }
+];     
+        
 
-
-        let correctCountry;
         let score = 0;
-
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
+        let correctCountry;
 
         function loadNewFlag() {
-            const randomCountry = countries[Math.floor(Math.random() * countries.length)];
-            correctCountry = randomCountry.name;
-            document.getElementById("flag").src = randomCountry.flag;
+            // Restablecer el fondo al color original
+            document.body.style.backgroundColor = 'white';
 
-            const options = shuffle([...countries].filter(country => country.name !== correctCountry));
-            const wrongOptions = options.slice(0, 2);
-            const allOptions = shuffle([correctCountry, ...wrongOptions.map(country => country.name)]);
+            // Elegir un país al azar
+            const randomIndex = Math.floor(Math.random() * countries.length);
+            correctCountry = countries[randomIndex];
 
+            // Mostrar la bandera
+            document.getElementById("flag").src = correctCountry.flag;
+
+            // Mostrar opciones aleatorias
             const optionsDiv = document.getElementById("options");
-            optionsDiv.innerHTML = "";  // Limpiar las opciones anteriores
-            allOptions.forEach(option => {
-                const button = document.createElement("button");
-                button.textContent = option;
-                button.onclick = () => checkAnswer(option);
-                optionsDiv.appendChild(button);
+            optionsDiv.innerHTML = ''; // Limpiar las opciones anteriores
+
+            // Crear un conjunto con el país correcto y dos opciones incorrectas
+            let options = [correctCountry];
+            while (options.length < 3) {
+                const option = countries[Math.floor(Math.random() * countries.length)];
+                if (!options.includes(option)) {
+                    options.push(option);
+                }
+            }
+
+            // Barajar las opciones
+            options = options.sort(() => Math.random() - 0.5);
+
+            // Mostrar las opciones
+            options.forEach(option => {
+                const optionDiv = document.createElement("div");
+                optionDiv.classList.add("option");
+                optionDiv.textContent = option.name;
+                optionDiv.onclick = () => checkAnswer(option.name);
+                optionsDiv.appendChild(optionDiv);
             });
         }
 
         function checkAnswer(selectedCountry) {
-            if (selectedCountry === correctCountry) {
-                score++;
-                alert("¡Correcto!");
+            if (selectedCountry === correctCountry.name) {
+                score += 10;
+                document.body.style.backgroundColor = 'green';
             } else {
-                alert(`Incorrecto. La respuesta correcta era: ${correctCountry}`);
+                score -= 10;
+                document.body.style.backgroundColor = 'red';
             }
-            document.getElementById("score").textContent = `Aciertos: ${score}`;
-            loadNewFlag();  // Cargar una nueva bandera después de cada intento
+
+            // Actualizar el puntaje
+            document.getElementById("score").textContent = `Puntaje: ${score}`;
+
+            // Cambiar a la siguiente bandera después de 1 segundo
+            setTimeout(loadNewFlag, 1000);
         }
 
-        window.onload = loadNewFlag;
+        // Iniciar el juego cargando la primera bandera
+        loadNewFlag();
     </script>
 
 </body>
