@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casita Robada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        #mesa, #jugador, #casitas {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .carta {
+            width: 100px;
+            height: 150px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        #mensajes {
+            margin-top: 20px;
+        }
+        .carta img {
+            width: 100%;
+            height: 100%;
+        }
+        .casita {
+            margin: 0 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Casita Robada</h1>
+
+    <div id="mesa"></div>
+    <h3>Tus cartas</h3>
+    <div id="jugador"></div>
+
+    <div id="casitas">
+        <div class="casita">
+            <h3>Tu casita (<span id="contador-jugador">0</span> cartas)</h3>
+            <div id="casita-jugador"></div>
+        </div>
+        <div class="casita">
+            <h3>Casita de la computadora (<span id="contador-computadora">0</span> cartas)</h3>
+            <div id="casita-computadora"></div>
+        </div>
+    </div>
+
+    <div id="mensajes"></div>
+
+    <script>
+        // URLs de las cartas
+
+
+        const cartas = [
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg3aOCccTj1r2BDYgeAHBNqDCh7BdiSbTZxQWVWJ1uz94OBp3FI7v3OGmm-9RrVtDifuIiWiS-JefGy4SrM2kuItaemEY_VmSIvlG14UdvgBh886eJqB9j8t_j71SdC0qEIrhk_S9X9Spg/s0/baraja-tortugas-ninja-carta-raphael-1.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEipJOBS-DAzt3PlZtApc6wk8SiQI34yH2HgEPknG_VpL0D2RiTX0aHYqCRbl95lUq1ZGHni6JM416Wup2GWrnP_3NCf_VzLtuH_u0e_vm6MzvjKXGACohvOTkIPOASV2Bhk9g9EIBWcN-A/s0/baraja-tortugas-ninja-carta-raphael-2.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh1nXwuiNJcXq6P6qP-b7iuDVCNYo5E9EszbJPFkIr334XOiSmhcFmW7dVwyLcp1lroATaoi0BuSfV46njDG8b1QRj8WtnHaE2eoBn6IUh3WBxvLkqbttgHkqIrD1l6CvlqqGnV5MJ7f_k/s0/baraja-tortugas-ninja-carta-raphael-3.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjm_2aVHnxwMJLs_gxsEqttaIAB4QHY3bxLFvLKQjm5Shwi6PRi0YxXNjEl7AN2AhqiQqtZOl2fqOrW0OgdV-DdMKVbbz2HdaJxMY6gVuoqs7ekxxvLQc4N3wNRzXxNlrko3WuFoj9sTAM/s0/baraja-tortugas-ninja-carta-raphael-4.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhOZXI2d-8XvxhGLoRcdsInIkRjl-hlH2fm3CKNTXVE-IqhKDqVZIcFb0kTvrxEIlH1dsTYKKJaBT-hpw9NYwuAAN_XJSqfN9qf5Xnr1pwuKHwB4cwSor-YXsd49QP3pnOpQTw1OHhsi5A/s0/baraja-tortugas-ninja-carta-raphael-5.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjGWiNdB-t-uYxLZ7NrQBx7x8gPTqjblOrMI95DAlc_Y6fWQJypmU1lgIPjSfcl3T1DyobHof7ggcYGO_fWElhGdYaQJ5aN-JYpfwNEP21Y7kv6EinWUYc4FDQH2SBQ_DjYI4ERt4aMatM/s0/baraja-tortugas-ninja-carta-raphael-6.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhCOjZOSmk7URNFBD0_-T7F9ClRATS-mze7OUJt1v0CfmZpfiCbpiUuW8pKWNmZSNAUkxpokWagq8mrxglo4vaprEe_5MKAuYJWDfheYx-OJ4Fhen9Y1VzS_okR_9SmZV6-_JsrUL0rYXw/s0/baraja-tortugas-ninja-carta-raphael-7.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgR_VhdPzZrydesLxpHGo2lUgVEaikvGTKh0lkvOdbLhmJgERuUrdqgKIgtL5mRJnl3_FR7iOmGvAgNHzKTyoRO6Ryavd1d-qwEdZftDB5wNcWrvkup2OdQrNULvGA418POns4XJ-SnDgo/s0/baraja-tortugas-ninja-carta-raphael-8.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjz-dTscQnOilzpiV1tE1yMSNl-HfxfEOPmQeu-9jIwwjtDE86AKUBeq5MHUiYWkunbSG32DvnQY2tP71QBreUZax_xgoUM0kd74OEvdBnc8ERQ1vWiGD_cSS8_Alf7DI13kBvMszULjc0/s0/baraja-tortugas-ninja-carta-donatello-1.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiyxJrmh9YJpO5_RRrHtfOR59a9zEmLzjIDAS3rwBXdEbOSL8RBxR92wsylavCo9NqAR1RuvYb8K4jYLdb_7Q2XfCct5nniSW2FFue_D0p2mtNlRsdSroj8AKxGEIoMWDNHByBMleWUoaw/s0/baraja-tortugas-ninja-carta-donatello-2.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiy_WUmsdaupetRdqCwUzP8tX8UxCwoY_ouxVIaJ9EpbtCyo7lkY_tHwPVyzgpDq7CiBBGpW14tspEucMPrfcizoC87_v5cN1p_Cix-LX9XaoCwOVVhiex4Bmu5fHm_jV8uTuZ_y5RE1es/s0/baraja-tortugas-ninja-carta-donatello-3.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJYe8_5mwjE-Ra0zPkuRjM_pqtTWkzR0jXyqSmFz_4Nx1IEEOtskffoVBkBtEThyphenhyphen0TJ_uVzLh6dhmbVdiJ1TNiYFGXlJpuw5ifqve50gpArkDEihNxcAfOEoKuEBMOVB9BOyt5-01dHYY/s0/baraja-tortugas-ninja-carta-donatello-4.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjRHfFT9FzkFMvxXSQniSW9Qi5261g_4g9g7UeHZXAPyeqqPStPJwV0QwL3PwLOxjbH7jDmd12oKWi7c4qNE17d0iGOwgOFm5Vc6qQ6ggx16zL3PnPPKz0o5GdthqXtMhrTuF-spHBPwtw/s0/baraja-tortugas-ninja-carta-donatello-5.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhYUIA5eXYV9RaNDoyewEVcsX52Hb9z5HR8FlgDGmt_062_iIdEd8FTz08kCXT_reIiiuM7N2qTtRvAYS3_dffmk7E8EiIqeiJBPk29NobuUu48GP05Mj37Bigt5hSx70tzZurK_EwUlrY/s0/baraja-tortugas-ninja-carta-donatello-6.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhSckKyI6mUgc2yjB5prF9v-fu9s72jOuj9RQOCLXAeZb4gOwNMpjuF0mvnsd8BGVM-o6eN6h9bwnIB9qTRztL2O6tFBITZEiqu-_Wz6ABSLPQVG_Bfry8V7wkl4CmgpSNV0l2MHOMdcEo/s0/baraja-tortugas-ninja-carta-donatello-7.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg_KzosPVeDxD0Qc2c8pfIn5z4jpCNGLZg4oh3G1eGdOM7i30FQjXhL9zc1IZwOGFp8vv5rEX5eYWgM9e8_ho9xEIy13ILi-djJ3PFx28-SGGC0GCEYVq1IPhNv2ym80zal-LZmWIt6Na8/s0/baraja-tortugas-ninja-carta-donatello-8.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhlcq6HG3hqrjAjtmLP0GeRmzWolfNE9u1CCQQLH9acpV66g3hvdlkxh8uySMExUgweh0sedBVuI_0uvfXI8Za764jecNSTUNzEpzlCjCQ4Dv_dhdMI71pYZctD91VA3esy4qtiT2nuNfo/s0/baraja-tortugas-ninja-carta-leonardo-1.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh8Cnz6mACR_CBz5ANfpUIS-5LZtGlXqYtsSONxstfBfAYnerAPwxiwJce0SUDZ5XU8MkyL5cQosn5oYnEYtIBYmDs02jWYCl9an2E0HOZy9dho6SqZV7VX2whi1wTg0r5lsjVt-Lzakfo/s0/baraja-tortugas-ninja-carta-leonardo-2.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhnJm-Y1B7UjbKLWt4uyXI2YpMXCzbnEj-hyDDafzQbGHh3tRBXkuQrVhssKaa3Nll3Rv_u-SWJ9hwWgt7lq9rH6eObVQ0yeMLyvZ8GgO_TJaW7dwkABELrfM9S-i2SuLhpzP-kfYNBQP4/s0/baraja-tortugas-ninja-carta-leonardo-3.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJ2xEOC6dVjKmyx2RxnnlhMKNjEftJihe3SNsqTYAOt0TYZP-hn9Sx6Krur1VZkz-7Vg8XqsI0-bXtRpNftllT_LLe6dTh1fspvwJq_qzKL_Bxg5rmAn3klFBQsQyiofITOVvT3ffXIao/s0/baraja-tortugas-ninja-carta-leonardo-4.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhrTvra-JD9zlcSPvYV7CpbXhlQlb6rj-UtFTgO2kED3DsmyWya6ajMgFsD45VQfKJL_MgnYpbhaY6eZvFKVQe7gRfJCZeBftj7usPWVTQF_kWocdaIWGDFmX0ff3LA8dSE2zfjcJjU8do/s0/baraja-tortugas-ninja-carta-leonardo-5.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhYSiBUZ2lelkdfVVQUl6cznu5gieL_RGofj6AQNVLB8NXV_ypTclHwLd4OGg6xROCdk-ZDF4X_FxQyo_NNwMz5jvRegaQPMioZ6sU8JaaZCaRKTiL_iQmRxCD6Vm1MJGe6wBDEqWJ-c-M/s0/baraja-tortugas-ninja-carta-leonardo-6.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi1e3FjYiurRIqUOyQQRWWhzi9jNdJryUbdmTC8lCFEunIdc9rg_Eoum2aJPRVSOJGSGxwv8g_-pZRVTl585tZxJIXj4aIipXCOZrfI0Zyp29N7LyObw09QdYEuS2QeDwVdisco0FFNfGE/s0/baraja-tortugas-ninja-carta-leonardo-7.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj6h9VS4kIVyXSCEcpTWhyLELnDXkNxBdg6yaFc3sCmOllms01ZUlJPNPFEJ0Hekxof2qYgIOXL6Kk0R43RNtH5gIBxxfQc9H1Qx3K6cuSkbYFjb1KwfGqJDPh6Pqd29PXQz-Po87ey7_U/s0/baraja-tortugas-ninja-carta-leonardo-8.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgWp65Ax5y_gEHI6Rqy7Hf3xCsbO0tk5kd79OvJASimxh6nE0sSav10s48S27L9bsuw1lHGVzQqTz4UT1Fng4VA7rqmas1OhG8fashNSAAGYTIK8kL8OexqyL-2FfH7SlMtIyDc8ZFd4Vc/s0/baraja-tortugas-ninja-carta-michelangelo-1.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghEXsGtdHuC4Gi7VnelMsk7CFK-SzmnednH47ehdFbpGAq5MOl_ziWyvxoWhf1L2yzFLuTQLJic66zKLODXywhq1W7sK5awXtyk4m6QaJQvol7eCoi5frS-AfG-qpp9dAUgen47aYFPRw/s0/baraja-tortugas-ninja-carta-michelangelo-2.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgCXKrXu1WIUdgZCW8g-cP8wUZfwF9LlBSF-0w8nk2ftrL-Uep23WFQtHcB5UxbaTzQxb8R-zw_DOsOI3fAZLp5qxzvj3PVP5N2z7vCBgu46Zz1hKlwfKcyFAoDExf_Lau8boM2KLslcW4/s0/baraja-tortugas-ninja-carta-michelangelo-3.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjm_2aVHnxwMJLs_gxsEqttaIAB4QHY3bxLFvLKQjm5Shwi6PRi0YxXNjEl7AN2AhqiQqtZOl2fqOrW0OgdV-DdMKVbbz2HdaJxMY6gVuoqs7ekxxvLQc4N3wNRzXxNlrko3WuFoj9sTAM/s0/baraja-tortugas-ninja-carta-raphael-4.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMTXte3yK0eKwX-nsMe02QHh_ovfuci9Wdv7A4NXbK6IE1uzD_YVQ5T16aZFXZowYoAGojamMXTVho6qzEsklajqBtE-DmCj1UbDHuDeAUaFs5FJhNpSDxvEZcfmzznmzJVdey9OLt344/s0/baraja-tortugas-ninja-carta-michelangelo-5.jpg', 
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgr5_5CMhD7Xq8gFvsCfe8hQZU2obDLNj1sH7wqRCkVoVo4ZgnVK7-HlEA8Fz1wahFxYuWcd-1X-mghYYHQ8vIIZSw_0HVerN2ZIRM2T5Dw_crSCz8VJw9JxKuGsM6PO2GKGeFQUhabcIQ/s0/baraja-tortugas-ninja-carta-michelangelo-6.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEihK55VwHanVS_egE11gqSqYkg8NpW0n0NjU_3fYjEnLB110qrWEP3RmmGy11YmLwCsFlE5rthKWsUeWQf6h2AyY456dhMc6gLKPOgpcgJXpF6InIYUCFqpkGTbXWz3WwmoAVzO49lS9Lc/s0/baraja-tortugas-ninja-carta-michelangelo-7.jpg',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi6RHT_Mvn4O3HwqxU6UTa6OJsgz_rVF03_NGQ64B7mZRysEztKzse2PhwZAxXUjZRQyPQT9Gy72MfCNLpsjfHV79KS5DedF4iV4JT0nXtXJHVuytilgBJ-dYn-_l7mtv82DCINRQjcCTI/s0/baraja-tortugas-ninja-carta-michelangelo-8.jpg'
+];
+
+
+        let cartasMesa = [];
+        let cartasJugador = [];
+        let casitaJugador = [];
+        let casitaComputadora = [];
+        let mazo = [...cartas]; // Crea una copia del mazo inicial
+
+        // Función para barajar el mazo usando el algoritmo de Fisher-Yates
+        function barajar(mazo) {
+            for (let i = mazo.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [mazo[i], mazo[j]] = [mazo[j], mazo[i]]; // Intercambia los elementos
+            }
+            return mazo;
+        }
+
+
+
+
+        // Función para repartir cartas
+        function repartirCartas() {
+            if (mazo.length === cartas.length) { // Barajar solo al inicio del juego
+                mazo = barajar(mazo);
+		cartasMesa = mazo.splice(0, 4);
+            }
+            
+            cartasJugador = mazo.splice(0, 3);
+            mostrarCartas();
+        }
+
+        // Mostrar las cartas en la mesa y del jugador
+        function mostrarCartas() {
+            const mesaDiv = document.getElementById('mesa');
+            const jugadorDiv = document.getElementById('jugador');
+
+            mesaDiv.innerHTML = '';
+            jugadorDiv.innerHTML = '';
+
+            cartasMesa.forEach((carta, index) => {
+                const cartaDiv = crearCartaDiv(carta, index, 'mesa');
+                mesaDiv.appendChild(cartaDiv);
+            });
+
+            cartasJugador.forEach((carta, index) => {
+                const cartaDiv = crearCartaDiv(carta, index, 'jugador');
+                jugadorDiv.appendChild(cartaDiv);
+            });
+        }
+
+        // Crear elemento de carta
+        function crearCartaDiv(carta, index, tipo) {
+            const cartaDiv = document.createElement('div');
+            cartaDiv.className = 'carta';
+            cartaDiv.innerHTML = `<img src="${carta}" alt="Carta">`;
+            if (tipo === 'jugador') {
+                cartaDiv.onclick = () => jugarCarta(index);
+            }
+            return cartaDiv;
+        }
+
+        // Jugar una carta
+        function jugarCarta(indice) {
+            const cartaSeleccionada = cartasJugador[indice];
+            const { numero: numeroCartaJugador } = obtenerDatosDeCarta(cartaSeleccionada);
+
+            // 1. Ver si la casita de la computadora tiene una carta con el mismo número
+            if (casitaComputadora.length > 0 && numeroCartaJugador === obtenerNumeroUltimaCarta(casitaComputadora)) {
+                casitaJugador = [...casitaJugador, ...casitaComputadora, cartaSeleccionada];
+                casitaComputadora = [];
+                mostrarMensaje("¡Robaste la casita de la computadora!");
+            } else {
+                // 2. Ver si hay una carta en la mesa con el mismo número
+                const indiceCartaMesa = cartasMesa.findIndex(carta => {
+                    const { numero: numeroCartaMesa } = obtenerDatosDeCarta(carta);
+                    return numeroCartaMesa === numeroCartaJugador;
+                });
+
+                if (indiceCartaMesa >= 0) {
+                    casitaJugador.push(cartasMesa[indiceCartaMesa], cartaSeleccionada);
+                    cartasMesa.splice(indiceCartaMesa, 1);
+                    mostrarMensaje("¡Robaste una carta de la mesa!");
+                } else {
+                    // 3. Si no hay coincidencia, se añade la carta a la mesa
+                    cartasMesa.push(cartaSeleccionada);
+                }
+            }
+
+            cartasJugador.splice(indice, 1); // Quitar carta del jugador
+            mostrarCartas();
+            actualizarCasitas();
+            turnoComputadora();
+        }
+
+        // Turno de la computadora
+        function turnoComputadora() {
+            if (cartasJugador.length === 0) {
+                if (mazo.length > 0) {
+                    repartirCartas();
+                } else {
+                    
+			if (casitaJugador.length > casitaComputadora.length) {
+            mensajeFin = "Fin del Juego. ¡Ganaste!";
+        } else if (casitaJugador.length < casitaComputadora.length) {
+            mensajeFin = "Fin del Juego. La computadora gana.";
+        } else {
+            mensajeFin = "Fin del Juego. Es un empate.";
+        }
+        mostrarMensaje(mensajeFin);
+                }
+                return;
+            }
+
+            const cartaComputadora = mazo.shift();
+            const { numero: numeroCartaComputadora } = obtenerDatosDeCarta(cartaComputadora);
+
+            const indiceCartaMesa = cartasMesa.findIndex(carta => {
+                const { numero: numeroCartaMesa } = obtenerDatosDeCarta(carta);
+                return numeroCartaMesa === numeroCartaComputadora;
+            });
+
+            if (indiceCartaMesa >= 0) {
+                casitaComputadora.push(cartasMesa[indiceCartaMesa], cartaComputadora);
+                cartasMesa.splice(indiceCartaMesa, 1);
+                mostrarMensaje("La computadora robó una carta de la mesa.");
+            } else if (casitaJugador.length > 0 && numeroCartaComputadora === obtenerNumeroUltimaCarta(casitaJugador)) {
+                casitaComputadora = [...casitaComputadora, ...casitaJugador, cartaComputadora];
+                casitaJugador = [];
+                mostrarMensaje("¡La computadora robó tu casita!");
+            } else {
+                cartasMesa.push(cartaComputadora);
+            }
+
+            mostrarCartas();
+            actualizarCasitas();
+        }
+
+        // Función para obtener el número y el palo de la carta desde la URL
+        function obtenerDatosDeCarta(cartaUrl) {
+            const match = cartaUrl.match(/carta-(\w+)-(\d+)\.jpg$/);
+            if (match) {
+                const palo = match[1]; // raphael, donatello, etc.
+                const numero = parseInt(match[2], 10); // número de la carta
+                return { palo, numero };
+            }
+            return { palo: null, numero: null };
+        }
+
+        // Obtener el número de la última carta de una casita
+        function obtenerNumeroUltimaCarta(casita) {
+            const ultimaCarta = casita[casita.length - 1];
+            const { numero } = obtenerDatosDeCarta(ultimaCarta);
+            return numero;
+        }
+
+        // Actualizar las casitas (mostrando solo la última carta y el contador)
+        function actualizarCasitas() {
+            const casitaJugadorDiv = document.getElementById('casita-jugador');
+            const casitaComputadoraDiv = document.getElementById('casita-computadora');
+            const contadorJugador = document.getElementById('contador-jugador');
+            const contadorComputadora = document.getElementById('contador-computadora');
+
+            casitaJugadorDiv.innerHTML = '';
+            casitaComputadoraDiv.innerHTML = '';
+
+            if (casitaJugador.length > 0) {
+                const ultimaCartaJugador = crearCartaDiv(casitaJugador[casitaJugador.length - 1], null, null);
+                casitaJugadorDiv.appendChild(ultimaCartaJugador);
+            }
+
+            if (casitaComputadora.length > 0) {
+                const ultimaCartaComputadora = crearCartaDiv(casitaComputadora[casitaComputadora.length - 1], null, null);
+                casitaComputadoraDiv.appendChild(ultimaCartaComputadora);
+            }
+
+            contadorJugador.textContent = casitaJugador.length;
+            contadorComputadora.textContent = casitaComputadora.length;
+        }
+
+        // Mostrar mensajes
+        function mostrarMensaje(mensaje) {
+            const mensajesDiv = document.getElementById('mensajes');
+            mensajesDiv.textContent = mensaje;
+        }
+
+        // Inicializar el juego
+        repartirCartas();
+    </script>
+</body>
+</html>
