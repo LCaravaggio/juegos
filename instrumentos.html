@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instrumentos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.2s;
+        }
+        h1 {
+            color: #333;
+        }
+        .score {
+            margin: 20px;
+            font-size: 1.5em;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 150px);
+            gap: 20px;
+            justify-content: center;
+            margin: 20px auto;
+            max-width: 960px; /* Ensures grid fits properly */
+        }
+        .image-grid img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            transition: border-color 0.2s ease;
+        }
+        .image-grid img:hover {
+            border-color: #007bff;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Instrumentos</h1>
+    <p class="score">Score: <span id="score">0</span></p>
+
+    <audio id="audio-player"></audio>
+
+    <div class="image-grid">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Steinway_%26_Sons_concert_grand_piano%2C_model_D-274%2C_manufactured_at_Steinway%27s_factory_in_Hamburg%2C_Germany.png/1200px-Steinway_%26_Sons_concert_grand_piano%2C_model_D-274%2C_manufactured_at_Steinway%27s_factory_in_Hamburg%2C_Germany.png" alt="Piano" data-instrument="piano">
+        <img src="https://biomusic.cl/wp-content/uploads/2020/06/GUITARRA-ACUSTICA-C70-YAMAHA-01-256x256.jpg" alt="Guitar" data-instrument="guitar">
+        <img src="https://musicshaker.com.ar/wp-content/uploads/2022/06/D_959129-MLA48914228757_012022-O-256x256.jpg" alt="Violin" data-instrument="violin">
+        <img src="https://www.sistemaufo.com/imgs/productos/productos31_10812.jpg" alt="Batería" data-instrument="drums">
+        <img src="https://musicshaker.com.ar/wp-content/uploads/2022/06/D_914277-MLA31912072869_082019-F-256x256.jpg" alt="Violonchelo" data-instrument="violonchelo">
+        <img src="https://m.media-amazon.com/images/I/61EmRoCtTOL.jpg" alt="Ukelele" data-instrument="ukelele">
+        <img src="https://acdn.mitiendanube.com/stores/001/407/523/products/triangulo-chico1-beed54d4f2db1f74f116276581951637-640-0.jpg" alt="Triángulo" data-instrument="triangulo">
+        <img src="https://musicshaker.com.ar/wp-content/uploads/2022/06/D_921242-MLA31912053505_082019-F-256x256.jpg" alt="Cajón Peruano" data-instrument="cajonperuano">
+        <img src="https://www.ortola-sa.es/web/image/product.template/10517/image_256/%5B2930%5D%20Tambor%20Militar%2035X16%20Quadura%20Ref.%2004704?unique=23b31f1" alt="Tambor" data-instrument="tambor">
+        <img src="https://www.sistemaufo.com/imgs/productos/productos31_2864.jpg" alt="Flauta" data-instrument="flauta">
+        <img src="https://musicalguima.com/421715-home_default/armonica-hohner-golden-melody-progressive.jpg" alt="Armónica" data-instrument="armonica">
+        <img src="https://musicshaker.com.ar/wp-content/uploads/2022/06/D_746885-MLA46261524273_062021-O-256x256.jpg" alt="Guitarra Eléctrica" data-instrument="guitarraelectrica">
+    </div>
+
+    <button id="play-sound">Play Sound</button>
+
+    <script>
+        const sounds = [
+            { url: 'https://sonidosmp3gratis.com/sounds/ringtones-piano.mp3', instrument: 'piano' },
+            { url: 'https://sonidosmp3gratis.com/sounds/ringtones-guitar-and-bansuri.mp3', instrument: 'guitar' },
+            { url: 'https://sonidosmp3gratis.com/sounds/violines-trsites-violin-triste-.mp3', instrument: 'violin' },
+            { url: 'https://sonidosmp3gratis.com/sounds/compresssion_1.mp3', instrument: 'drums' },
+            { url: 'https://sonidosmp3gratis.com/sounds/animatrick_1.mp3', instrument: 'violonchelo' },
+            { url: 'https://sonidosmp3gratis.com/sounds/ukelele-3-.mp3', instrument: 'ukelele' },
+            { url: 'https://sonidosmp3gratis.com/sounds/008894686_prev.mp3', instrument: 'triangulo' },
+            { url: 'https://www.losonidosdelperu.pe/wp-content/uploads/2016/12/CAJ%C3%93N-PERUANO-FESTEJO.mp3', instrument: 'cajonperuano' },
+            { url: 'https://sonidosmp3gratis.com/sounds/tambor-de-circuito_1.mp3', instrument: 'tambor' },
+            { url: 'https://sonidosmp3gratis.com/sounds/americanos_3.mp3', instrument: 'flauta' },
+            { url: 'https://sonidosmp3gratis.com/sounds/008767056_prev.mp3', instrument: 'armonica' },
+            { url: 'https://sonidosmp3gratis.com/sounds/000217061_prev.mp3', instrument: 'guitarraelectrica' }
+        ];
+
+        let currentSound = null;
+        let score = 0;
+
+        const audioPlayer = document.getElementById('audio-player');
+        const scoreDisplay = document.getElementById('score');
+        const playSoundButton = document.getElementById('play-sound');
+        const images = document.querySelectorAll('.image-grid img');
+
+        function playRandomSound() {
+            const randomIndex = Math.floor(Math.random() * sounds.length);
+            currentSound = sounds[randomIndex];
+            audioPlayer.src = currentSound.url;
+            audioPlayer.play();
+        }
+
+        function resetBackground() {
+            document.body.style.backgroundColor = '#f4f4f9';
+        }
+
+        images.forEach(img => {
+            img.addEventListener('click', () => {
+                const selectedInstrument = img.getAttribute('data-instrument');
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+
+                if (selectedInstrument === currentSound.instrument) {
+                    document.body.style.backgroundColor = 'green';
+                    setTimeout(() => {
+                        score += 1;
+                        scoreDisplay.textContent = score;
+                        resetBackground();
+                    }, 2000);
+                } else {
+                    document.body.style.backgroundColor = 'red';
+                    setTimeout(() => {
+                        score = 0;
+                        scoreDisplay.textContent = score;
+                        resetBackground();
+                    }, 2000);
+                }
+                currentSound = null; // Reset current sound
+            });
+        });
+
+        playSoundButton.addEventListener('click', () => {
+            playRandomSound();
+        });
+
+    </script>
+</body>
+</html>
