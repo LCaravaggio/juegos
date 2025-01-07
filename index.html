@@ -26,11 +26,16 @@
             margin-bottom: 30px;
             font-size: 2rem;
         }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
         button {
             background-color: #ff6b6b;
             color: white;
             padding: 15px 40px;
-            margin: 15px;
             border: none;
             border-radius: 30px;
             font-size: 18px;
@@ -49,14 +54,16 @@
 
     <div class="container">
         <h1>Juegos</h1>
-        <button onclick="redirect('tetris.html')">Tetris</button>
-        <button onclick="redirect('snake.html')">Snake</button>
-        <button onclick="redirect('pong.html')">Pong</button>
-        <button onclick="redirect('arkanoid.html')">Arkanoid</button>
-        <button onclick="redirect('banderas.html')">Banderas</button>
-        <button onclick="redirect('memotest/memotest.html')">Memotest</button>
-        <button onclick="redirect('casitarobada.html')">Casita_Robada</button>
-        <button onclick="redirect('instrumentos.html')">Instrumentos</button>
+        <div class="button-container">
+            <button onclick="redirect('tetris.html')">Tetris</button>
+            <button onclick="redirect('snake.html')">Snake</button>
+            <button onclick="redirect('pong.html')">Pong</button>
+            <button onclick="redirect('arkanoid.html')">Arkanoid</button>
+            <button onclick="redirect('banderas.html')">Banderas</button>
+            <button onclick="redirect('memotest/memotest.html')">Memotest</button>
+            <button onclick="redirect('casitarobada.html')">Casita_Robada</button>
+            <button onclick="redirect('instrumentos.html')">Instrumentos</button>
+        </div>
     </div>
 
     <script>
