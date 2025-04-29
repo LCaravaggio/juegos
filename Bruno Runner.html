@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Juego del Auto - Bruno</title>
+  <style>
+    body {
+      margin: 0;
+      background: #87ceeb;
+      font-family: sans-serif;
+    }
+
+    #game {
+      position: relative;
+      width: 1000px;
+      height: 500px;
+      margin: 40px auto;
+      background: #87ceeb;
+      overflow: hidden;
+      border: 5px solid #222;
+      border-radius: 10px;
+    }
+
+    .background {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 160px;
+      background: linear-gradient(#4caf50 0%, #2e2e2e 50%);
+    }
+
+    .road-line {
+      position: absolute;
+      bottom: 80px;
+      width: 200%;
+      height: 10px;
+      background: repeating-linear-gradient(
+        to right,
+        white 0,
+        white 40px,
+        transparent 40px,
+        transparent 80px
+      );
+      animation: scrollLine 2s linear infinite;
+    }
+
+    @keyframes scrollLine {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    #auto {
+      position: absolute;
+      width: 100px;
+      height: 60px;
+      background-image: url('auto.jpg');
+      background-size: cover;
+      bottom: 80px;
+      left: 100px;
+      transition: left 0.1s;
+    }
+
+    .obstaculo {
+      position: absolute;
+      bottom: 80px;
+      width: 40px;
+      height: 60px;
+      background-color: orange;
+      border: 3px solid white;
+      border-radius: 5px;
+    }
+
+    .cartel {
+      position: absolute;
+      top: 50px;
+      right: 100px;
+      background: white;
+      color: #222;
+      border: 3px solid black;
+      padding: 10px 20px;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      z-index: 10;
+      transform: rotate(-5deg);
+    }
+
+    #puntaje {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      font-size: 22px;
+      background: rgba(255,255,255,0.8);
+      padding: 5px 15px;
+      border-radius: 8px;
+      border: 2px solid #333;
+    }
+
+    #gameOverScreen {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 100;
+      display: none;
+    }
+
+    #gameOverScreen button {
+      margin-top: 20px;
+      font-size: 20px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div class="background"></div>
+    <div id="roadLine" class="road-line"></div>
+    <div class="cartel">BRUNO</div>
+    <div id="puntaje">Puntaje: 0</div>
+    <div id="auto"></div>
+    <div id="gameOverScreen">
+      <div>¡Chocaste Bruno! Fin del juego.</div>
+      <button onclick="location.reload()">Reintentar</button>
+    </div>
+  </div>
+
+  <audio id="crashSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5ab56c4b5a.mp3?filename=explosion-6055.mp3"></audio>
+
+  <script>
+    const auto = document.getElementById("auto");
+    const game = document.getElementById("game");
+    const roadLine = document.getElementById("roadLine");
+    const puntajeDiv = document.getElementById("puntaje");
+    const gameOverScreen = document.getElementById("gameOverScreen");
+    const crashSound = document.getElementById("crashSound");
+
+    let isJumping = false;
+    let velocity = 0;
+    let positionY = 0;
+    let positionX = 100;
+    let gameOver = false;
+    let puntos = 0;
+    let velocidadObs = 5;
+    let intervaloObs = 2500;
+
+    document.addEventListener("keydown", (e) => {
+      if (gameOver) return;
+
+      if (e.key === "ArrowLeft" && positionX > 0) {
+        positionX -= 20;
+        auto.style.left = positionX + "px";
+      }
+      if (e.key === "ArrowRight" && positionX < 900) {
+        positionX += 20;
+        auto.style.left = positionX + "px";
+      }
+      if (e.key === "ArrowUp" && !isJumping) {
+        isJumping = true;
+        velocity = 18;
+      }
+    });
+
+    function updateJump() {
+      if (isJumping) {
+        positionY += velocity;
+        velocity -= 1;
+        if (positionY <= 0) {
+          positionY = 0;
+          isJumping = false;
+        }
+        auto.style.bottom = 80 + positionY + "px";
+      }
+    }
+
+    function crearObstaculo() {
+      if (gameOver) return;
+
+      const obstaculo = document.createElement("div");
+      obstaculo.classList.add("obstaculo");
+      game.appendChild(obstaculo);
+
+      let obsLeft = 1000;
+      obstaculo.style.left = obsLeft + "px";
+
+      let obsInterval = setInterval(() => {
+        if (gameOver) {
+          clearInterval(obsInterval);
+          return;
+        }
+
+        obsLeft -= velocidadObs;
+        if (obsLeft < -50) {
+          clearInterval(obsInterval);
+          obstaculo.remove();
+        }
+        obstaculo.style.left = obsLeft + "px";
+
+        const autoRect = auto.getBoundingClientRect();
+        const obsRect = obstaculo.getBoundingClientRect();
+
+        const horizontalOverlap =
+          obsRect.left < autoRect.right - 20 &&
+          obsRect.right > autoRect.left + 20;
+
+        const verticalOverlap =
+          autoRect.bottom >= obsRect.top + 10 &&
+          autoRect.top <= obsRect.bottom;
+
+        if (horizontalOverlap && verticalOverlap && !isJumping) {
+          gameOver = true;
+          roadLine.style.animation = "none";
+          crashSound.play();
+          gameOverScreen.style.display = "flex";
+        }
+      }, 20);
+    }
+
+    function actualizarPuntaje() {
+      if (gameOver) return;
+      puntos += 1;
+      puntajeDiv.innerText = "Puntaje: " + puntos;
+
+      // Aumentar dificultad
+      if (puntos % 100 === 0) {
+        velocidadObs += 1;
+      }
+    }
+
+    setInterval(updateJump, 20);
+    setInterval(crearObstaculo, intervaloObs);
+    setInterval(actualizarPuntaje, 200);
+  </script>
+</body>
+</html>
